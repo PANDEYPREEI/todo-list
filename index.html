@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css"
+      integrity="sha512-9YHSK59/rjvhtDcY/b+4rdnl0V4LPDWdkKceBl8ZLF5TB6745ml1AfluEU6dFWqwDw9lPvnauxFgpKvJqp7jiQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="/index.css" />
+    <title>Todo List</title>
+    <style>
+      #add-btn {
+        cursor: pointer;
+      }
+      .delete-btn {
+        color: red;
+        cursor: pointer;
+        float: right;
+        border: none;
+        border-radius: 4px;
+        padding: 10px;
+        background-color: white;
+      }
+      .todo-list-item {
+        border-radius: 10px;
+        padding: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin: 2rem;
+        list-style-type: none;
+      }
+
+      .todo-list-item > span {
+        flex: 1;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .todo-list-item > button {
+        flex-shrink: 0;
+        margin-left: 1rem;
+      }
+
+      .no-tasks {
+        margin: auto;
+        border-radius: 10px;
+        width: 50%;
+        display: flex;
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+        background-color: white;
+      }
+
+      @media screen and (max-width: 480px) {
+        .todo-list-item {
+          padding: 10px;
+          margin: 10px;
+        }
+        .no-tasks {
+          width: 90%;
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="heading">Todo List</h1>
+      <div class="row">
+        <input
+          type="text"
+          name="todo-input"
+          id="todo-input"
+          placeholder="Enter Task Topic"
+        /><br />
+        <button id="add-btn" type="submit">Add</button>
+      </div>
+      <ul id="todo-list"></ul>
+      <p class="no-tasks" id="empty-task">
+        <img src="/empty.jpg" style="height: 5%; width: 10%" />
+      </p>
+    </div>
+
+    <script>
+      //define variable
+      const todoInput = document.getElementById("todo-input");
+      const addBtn = document.getElementById("add-btn");
+      const todoList = document.getElementById("todo-list");
+      const noTaskMsg = document.getElementById("empty-task");
+
+      //event listener to load tasks from localstorage on page load
+      window.addEventListener("load", loadTasksFromLocalStorage);
+
+      //Event listener for add button click
+      addBtn.addEventListener("click", addTodo);
+
+      //generates random color
+      function getRandomColor() {
+        const letters = "0123456789ABCDEF";
+        let color = "#";
+        for (let index = 0; index < 6; index++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+
+      //add task to todo list
+      function addTodo() {
+        const currentDate = new Date();
+        const todoText = todoInput.value.trim();
+        if (todoText.length > 25) {
+          alert("Task cannot be more than 25 characters");
+          todoInput.value = "";
+        } else if (todoText !== "" && todoText.length <= 25) {
+          const listItem = createTaskListItem(todoText, currentDate);
+          todoList.appendChild(listItem);
+          saveTasksToLocalStorage();
+          noTaskMsg.style.display = "none";
+          todoInput.value = "";
+          alert("Task added successfully");
+        } else {
+          alert("Please enter a task");
+        }
+      }
+
+      //create task tlist item
+      function createTaskListItem(todoText, currentDate) {
+        const listItem = document.createElement("li");
+        const randomColor = getRandomColor();
+        listItem.classList.add("todo-list-item");
+        listItem.style.backgroundColor = randomColor;
+        listItem.innerHTML = `<span style="text-transform: capitalize;color:white;font-size:16px;max-width:25px;display:block">${todoText}</span>
+                                <span style="fontSize:20px;color:white">${currentDate.toDateString()}</span>
+                                <button class="delete-btn"><i style="color:red" class="fas fa-trash"></i></button> `;
+        return listItem;
+      }
+
+      function deleteTodo() {
+        const todoText = todoInput.value.trim();
+        const listItem = this.parentNode;
+        listItem.parentNode.removeChild(listItem);
+        if (todoList.childElementCount == 0) {
+          noTaskMsg.style.display = "block";
+          localStorage.clear();
+        }
+        deleteTasksFromLocalStorage();
+        saveTasksToLocalStorage();
+      }
+
+      // save tasks to local storage
+      function saveTasksToLocalStorage() {
+        const tasks = Array.from(todoList.children).map((item) => {
+          const text = item.querySelector("span:first-child").textContent;
+          const date = item.querySelector("span:nth-child(2)").textContent;
+          return { text, date };
+        });
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+      }
+
+      //load tasks from localstoarge
+      function loadTasksFromLocalStorage() {
+        const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        if (tasks.length > 0) {
+          tasks.forEach((task) => {
+            const { text, date } = task;
+            const listItem = createTaskListItem(text, new Date(date));
+            todoList.appendChild(listItem);
+          });
+          noTaskMsg.style.display = "none";
+        }
+      }
+
+      //delete tasks from local storage
+      function deleteTasksFromLocalStorage(tasks) {
+        const tasksItem = JSON.parse(localStorage.getItem("tasks")) || [];
+        const text = document.querySelector("span:first-child").textContent;
+        const date = document.querySelector("span:nth-child(2)").textContent;
+        const updatedTasks = tasksItem.filter((task) => {
+          return task.text !== text || task.text !== date;
+        });
+        console.log(updatedTasks);
+        localStorage.setItem("tasks", JSON.stringify("tasks", updatedTasks));
+      }
+
+      todoList.addEventListener("click", function (e) {
+        if (e.target.classList.contains("delete-btn")) {
+          deleteTodo.call(e.target);
+        }
+      });
+    </script>
+  </body>
+</html>

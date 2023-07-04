@@ -1,0 +1,72 @@
+body {
+  background-color: #d4bbdd;
+}
+.heading {
+  font-family: cursive;
+  text-align: center;
+  opacity: 0.5;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.container {
+  text-align: center;
+  margin-top: 2%;
+}
+.create-btn:hover {
+  background-color: #4caf50;
+}
+
+.row {
+  border-radius: 7px;
+  background-color: #fdd1d2;
+  width: 30%;
+  padding: 50px;
+  margin: 20px auto;
+  box-sizing: border-box;
+}
+#todo-list {
+  width: 70%;
+  margin: auto;
+}
+
+.row input[type="text"],
+button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  outline: none;
+  border-radius: 4px;
+  border: none;
+}
+
+.row button[type="submit"] {
+  font-weight: 700;
+  background-color: #d0ab99;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.form button[type="submit"]:hover {
+  background-color: #4caf50;
+}
+/* Responsive Styles */
+@media only screen and (max-width: 768px) {
+  .container {
+    width: 90%;
+    margin: 0 auto;
+  }
+  .no-tasks {
+    width: 90%;
+    display: block;
+  }
+  #todo-list {
+    width: 90%;
+  }
+  .row {
+    width: 90%;
+    padding: 30px;
+  }
+}
